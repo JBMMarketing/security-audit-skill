@@ -2,6 +2,8 @@
 
 A coding-agent skill that turns your agent into a security auditor. It orchestrates isolated agents through reconnaissance, coverage-led hunting, candidate validation, structured output, independent record verification, and target-neutral reporting.
 
+> **JBM fork.** This fork adds [`DATA-PIPELINE-AND-ETL.md`](skills/security-audit/DATA-PIPELINE-AND-ETL.md) for ETL, notebook, Power Query, and Power BI code. It also treats exposed real credentials and personal data as findings rather than hardening notes, and requires secrets to be masked in all run files. Everything else tracks [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill).
+
 This is the skill that seeded Cloudflare's vulnerability discovery harness, described in [Build your own vulnerability harness](https://blog.cloudflare.com/build-your-own-vulnerability-harness). The harness grew into a multi-stage, fleet-wide system; this skill is the single-repo starting point it evolved from.
 
 ## What it does
@@ -39,6 +41,7 @@ Multiple runs against the same repo are additive. The skill uses prior ledgers a
 | `RESOURCE-EXHAUSTION-AND-AVAILABILITY.md` | Shared resource, quota, queue, worker, and operator-spend hunting classes |
 | `DATA-ISOLATION-AND-LIFECYCLE.md` | Tenant isolation, cache, search, export, backup, migration, deletion, and restore hunting classes |
 | `DESKTOP-MOBILE-AND-LOCAL-IPC.md` | Native app, deep-link, webview, exported-component, helper, daemon, and local-IPC hunting classes |
+| `DATA-PIPELINE-AND-ETL.md` | Secrets, source-data injection, spreadsheet export, BI row-level security, data exposure, and pipeline-identity hunting classes for ETL and analytics code (JBM addition) |
 | `VALIDATION-AND-REPORTING.md` | Phases 3–6 candidate validation, structured output, record verification, and reporting |
 | `report-schema.json` | JSON schema for all three `findings.json` verdicts |
 | `validate-findings.cjs` | Zero-dependency validator for `findings.json` in Phases 4 and 5 |
@@ -51,14 +54,14 @@ Multiple runs against the same repo are additive. The skill uses prior ledgers a
 Install the skill with the [Skills CLI](https://skills.sh):
 
 ```bash
-npx skills add https://github.com/cloudflare/security-audit-skill \
+npx skills add https://github.com/JBMMarketing/security-audit-skill \
   --skill security-audit
 ```
 
 Use `--global` for a user-level installation:
 
 ```bash
-npx skills add https://github.com/cloudflare/security-audit-skill \
+npx skills add https://github.com/JBMMarketing/security-audit-skill \
   --skill security-audit \
   --global
 ```
@@ -87,7 +90,11 @@ The skill activates automatically when the request matches its trigger (security
 
 - A coding agent with a model that supports tool use and parallel sub-agents
 - Node.js for the zero-dependency findings and coverage-ledger validators
-- An OS-enforced sandbox for target-controlled builds, tests, processes, browsers, emulators, fuzzers, and fixtures. It must disable external networking, use a sanitized allowlisted environment, enforce resource limits, and allow writes only to assigned scratch paths. Without these controls, the workflow keeps the lead as `needs_validation` instead of executing target code.
+- An OS-enforced sandbox for target-controlled builds, tests, processes, browsers, emulators, fuzzers, and fixtures. It must disable external networking, use a sanitized allowlisted environment, enforce resource limits, and allow writes only to assigned scratch paths. Without these controls, the workflow keeps the lead as `needs_validation` instead of executing target code. On native Windows, Claude Code usually cannot provide this sandbox, so expect a static source review; run under WSL2 or a Linux or macOS sandbox for execution-backed validation.
+
+Both validators also require `O_NOFOLLOW` and `O_NONBLOCK`, which Node does not provide on native Windows. There they exit with `OS no-follow and nonblocking input protection is unavailable`, so no full-audit run (including `quick`) can reach a validated finish there. Run full audits from WSL2 (for example, `wsl` and then `claude` inside the WSL clone). Guidance mode does not use the validators and works on native Windows.
+
+For small ETL repositories, prefer guidance mode (ask a focused question, such as "check this pipeline for exposed secrets and unsafe SQL") or, under WSL2, a `quick` profile with an agent budget, for example `quick security audit, budget 15 agents`.
 
 ## Design principles
 

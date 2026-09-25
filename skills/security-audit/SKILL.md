@@ -137,7 +137,7 @@ A strict total-agent budget can still be exceeded by an unexpectedly large candi
 
 ### Require a boundary and result
 
-For every candidate, name the lower-trust principal, accepted input or action, intended control, crossed boundary, affected principal or resource, and concrete observed or owner-observable result. Do not elevate a missing best practice, guessed deployment behavior, generic parser crash, or self-impact into a security finding.
+For every candidate, name the lower-trust principal, accepted input or action, intended control, crossed boundary, affected principal or resource, and concrete observed or owner-observable result. Do not elevate a missing best practice, guessed deployment behavior, generic parser crash, or self-impact into a security finding. An exposed real credential or real personal data is not a missing best practice: whoever can read the repository, its history, a shared artifact, or a log is the lower-trust principal. Never copy a full secret value into any run file; record its location, type, and a masked form.
 
 ### Use bounded local evidence
 
