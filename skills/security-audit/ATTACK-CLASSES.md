@@ -25,6 +25,8 @@ Use `confirmed` only when source evidence and bounded validation establish the f
 > **Data-isolation and lifecycle targets** (multi-tenant stores, caches/search, object links, analytics, export/backup, migration, deletion, retention, or restore): use [DATA-ISOLATION-AND-LIFECYCLE.md](DATA-ISOLATION-AND-LIFECYCLE.md).
 >
 > **Desktop, mobile, and local-IPC targets** (native apps, deep links, webview bridges, exported components, privileged helpers, local daemons, Unix sockets/XPC/Binder/D-Bus): use [DESKTOP-MOBILE-AND-LOCAL-IPC.md](DESKTOP-MOBILE-AND-LOCAL-IPC.md).
+>
+> **Data pipeline and ETL targets** (scheduled scripts, notebooks, SQL jobs, Power Query and Power BI or Fabric models, orchestrators, SaaS API syncs, shared-folder file drops, or CSV and Excel exports): use [DATA-PIPELINE-AND-ETL.md](DATA-PIPELINE-AND-ETL.md).
 
 **Injection** (subagent_type: `general`)
 Trace untrusted input from entry point to dangerous sink. What counts as a "dangerous sink" depends on the application:
@@ -116,6 +118,9 @@ Other agents hunt subtle bugs. This agent checks the basic exposures that are ea
 - Are there test/example/seed credentials that work in production?
 - Is there a `/debug`, `/admin`, `/test`, `/status`, `/health`, `/metrics`, `/env`, `/.env`, `/config` endpoint that is unprotected?
 - Are there any `.env`, `.env.local`, `credentials.json`, `*.pem`, `*.key` files checked into the repo?
+- Do connection strings, Power Query M, `.pbix`/`.pbit` files, notebook cells or saved outputs, job configs, or scheduler definitions embed passwords, API keys, SAS tokens, or client secrets?
+- Were credential files or lines committed and later removed? Search the local clone's history, not just the current tree.
+- Are real customer, employee, or payment records committed as fixtures, samples, or notebook outputs?
 - Does the `.gitignore` actually cover secrets, uploads, and local config?
 - Are dependencies pinned? Are there known CVEs in the dependency tree? (check lockfiles)
 - Are there any `eval()`, `exec()`, `child_process`, `Function()`, `vm.runInContext`, `import()` with dynamic input?
@@ -127,4 +132,4 @@ Other agents hunt subtle bugs. This agent checks the basic exposures that are ea
 
 This agent does not need to be creative. It needs to be thorough and literal. Check every item. Report each result.
 
-**Important**: For any finding this agent reports, it must verify the full code path, not just surface appearance. If a cookie is missing `HttpOnly`, check whether the cookie contains security-sensitive data and whether JS needs to read it by design. If an error message contains a field name, check whether the field is ever actually populated with sensitive data. A flag is not a finding — trace the impact before reporting.
+**Important**: For any finding this agent reports, it must verify the full code path, not just surface appearance. If a cookie is missing `HttpOnly`, check whether the cookie contains security-sensitive data and whether JS needs to read it by design. If an error message contains a field name, check whether the field is ever actually populated with sensitive data. A flag is not a finding — trace the impact before reporting. The exception is a real-format credential or real personal data in tracked source, history, or a shared artifact: that exposure is itself the boundary crossing (see the validation rules in [DATA-PIPELINE-AND-ETL.md](DATA-PIPELINE-AND-ETL.md)). Never copy a full secret value into a result; record its location, type, and a masked form.

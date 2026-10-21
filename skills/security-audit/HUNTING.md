@@ -150,6 +150,9 @@ file separately:
    needs_validation. Name exact blockers; do not give it severity or speculative completion.
 5. A missing best practice with no affected principal/resource is excluded or hardening,
    not a finding. A candidate disproved by source is not needs_validation.
+   A real-format credential or real personal data readable from tracked source, history,
+   a shared artifact, or a log is not a best-practice gap: its readers are the lower-trust
+   principal. Never copy a full secret value into a result.
 6. Use the same source-derived fingerprint for the same root cause in every state.
    It must match `^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$` and must not include a line,
    wave, agent, severity, or verdict.

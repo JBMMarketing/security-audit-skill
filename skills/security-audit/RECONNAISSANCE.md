@@ -36,7 +36,8 @@ Return trust boundaries and control locations with repository-relative file:line
 
 ```text
 Inventory every source-visible place external or lower-trust input enters:
-- HTTP/browser, RPC/message/protocol, files/archive/document, CLI/env/config, plugins/dependencies/CI, cloud events/IAM selectors, model context/tool arguments, mobile/deep-link/webview, and local IPC.
+- HTTP/browser, RPC/message/protocol, files/archive/document, CLI/env/config, plugins/dependencies/CI, cloud events/IAM selectors, model context/tool arguments, mobile/deep-link/webview, local IPC, and data-pipeline sources (SaaS API syncs, database extracts, shared-folder or emailed file drops, spreadsheets, notebooks, and BI model queries).
+Also list every place credentials are stored or loaded (config files, connection strings, Power Query M, notebooks, scheduler definitions, environment loading) and every place data is written for people to read (exports, reports, logs, synced folders), without copying secret values.
 For each surface, follow major transformations, stored or derived copies, and security-relevant sinks. Record source-visible limits and parallel paths to the same effect.
 Return repository-relative paths and line numbers. Be complete, but do not execute or send inputs.
 ```
